@@ -1,0 +1,77 @@
+name: ChestLockLite
+version: '${project.version}'
+main: com.chestlocklite.ChestLockLitePlugin
+api-version: '1.21'
+author: YourName
+description: Simple chest locking with owner and password protection
+website: https://github.com/yourusername/chestlocklite
+
+commands:
+  chestlock:
+    description: Lock or unlock chests
+    usage: /<command> <lock|unlock|password|removepassword|info>
+    aliases: [cl, lockchest]
+
+permissions:
+  chestlocklite.*:
+    description: All ChestLockLite permissions
+    default: op
+    children:
+      chestlocklite.use: true
+      chestlocklite.lock: true
+      chestlocklite.unlock: true
+      chestlocklite.password: true
+      chestlocklite.gui: true
+      chestlocklite.info: true
+      chestlocklite.admin: true
+      chestlocklite.bypass: true
+  chestlocklite.use:
+    description: Allows players to use basic chest locking features
+    default: true
+    children:
+      chestlocklite.lock: true
+      chestlocklite.unlock: true
+      chestlocklite.gui: true
+      chestlocklite.info: true
+  chestlocklite.trust:
+    description: Allows players to trust other players on their chests
+    default: true
+  chestlocklite.lock:
+    description: Allows players to lock chests
+    default: true
+  chestlocklite.unlock:
+    description: Allows players to unlock their own chests
+    default: true
+  chestlocklite.password:
+    description: Allows players to set and use passwords on chests
+    default: true
+  chestlocklite.gui:
+    description: Allows players to use the GUI menu
+    default: true
+  chestlocklite.info:
+    description: Allows players to view lock information
+    default: true
+  chestlocklite.admin:
+    description: Allows bypassing locks and admin commands
+    default: op
+    children:
+      chestlocklite.admin.clear: true
+      chestlocklite.admin.clearall: true
+      chestlocklite.admin.cleararea: true
+      chestlocklite.admin.reload: true
+  chestlocklite.admin.clear:
+    description: Allows clearing locks on individual chests
+    default: op
+  chestlocklite.admin.clearall:
+    description: Allows clearing all locks by a player
+    default: op
+  chestlocklite.admin.cleararea:
+    description: Allows clearing locks in an area
+    default: op
+  chestlocklite.admin.reload:
+    description: Allows reloading the plugin configuration
+    default: op
+  chestlocklite.bypass:
+    description: Allows bypassing all chest locks without unlocking
+    default: false
+

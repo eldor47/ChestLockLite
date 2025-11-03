@@ -1,0 +1,100 @@
+# ChestLockLite Configuration File
+
+# Database Settings
+database:
+  # SQLite database file name (stored in plugin data folder)
+  filename: "locks.db"
+  
+  # Auto-backup interval in hours (0 to disable)
+  backup-interval: 24
+
+# Lock Settings
+locks:
+  # Allow players to lock chests
+  allow-locking: true
+  
+  # Automatically lock chests when placed
+  auto-lock-on-place: false
+  
+  # Allow password-protected chests
+  allow-passwords: true
+  
+  # Maximum password length
+  max-password-length: 32
+  
+  # Minimum password length
+  min-password-length: 4
+  
+  # Password input cooldown in seconds (prevents spam)
+  password-cooldown: 3
+  
+  # Maximum number of chests a player can own
+  max-chests-per-player: 50
+  
+  # Allow admins to unlock any chest
+  allow-admin-unlock: true
+  
+  # Protect locked chests from explosions (creepers, TNT, etc.)
+  explosion-protection: true
+  
+  # Protect locked chests from fire and lava
+  fire-protection: true
+  
+  # Prevent pistons from moving locked chests
+  piston-protection: true
+  
+  # Allow trusted players system
+  allow-trusted-players: true
+  
+  # Maximum trusted players per chest
+  max-trusted-players-per-chest: 20
+
+# Messages
+messages:
+  # Message when chest is locked
+  chest-locked: "&cThis chest is locked!"
+  
+  # Message when locked by owner
+  locked-by-owner: "&eLocked by: &6{owner}"
+  
+  # Message when trying to break locked chest
+  cannot-break-chest: "&cYou cannot break this chest! It is locked by &e{owner}&c."
+  
+  # Message when password protected
+  password-protected: "&eThis chest is password protected. Use &6/cl password <password> &eto unlock."
+  
+  # Success messages
+  lock-success: "&aChest locked successfully!"
+  unlock-success: "&aChest unlocked successfully!"
+  password-set: "&aPassword set successfully!"
+  password-removed: "&aPassword removed successfully!"
+  
+  # Error messages
+  not-locked: "&cThis chest is not locked!"
+  already-locked: "&cThis chest is already locked!"
+  not-owner: "&cYou are not the owner of this chest!"
+  wrong-password: "&cIncorrect password!"
+  password-cooldown: "&cPlease wait {seconds} seconds before trying another password!"
+  max-chests-reached: "&cYou have reached the maximum number of locked chests ({max})!"
+  no-chest-target: "&cYou must be looking at a chest!"
+  invalid-password-length: "&cPassword must be between {min} and {max} characters!"
+
+# Visual Settings
+visual:
+  # Show lock particles when chest is opened
+  show-particles: true
+  
+  # Particle effect type (FLAME, HEART, VILLAGER_HAPPY, etc.)
+  particle-type: "VILLAGER_HAPPY"
+  
+  # Show action bar messages
+  show-actionbar: true
+
+# Advanced Settings
+advanced:
+  # Enable debug mode
+  debug: false
+  
+  # Log all lock/unlock actions
+  log-actions: true
+
