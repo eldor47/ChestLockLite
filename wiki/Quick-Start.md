@@ -21,11 +21,13 @@ That's it! The chest is now locked to you.
 
 The GUI is the easiest way to manage your chests:
 
-1. **Shift + Right-click** any chest (while sneaking)
+1. **Shift + Right-click** any chest (while sneaking and empty-handed)
 2. Click the "Lock Chest" button
 3. Click "Set Password" if you want password protection
 
-Alternatively, use `/cl gui` while looking at a chest.
+**Note:** You must have an empty hand to open the GUI via Shift + Right-click. This prevents accidentally placing items like chests or hoppers.
+
+Alternatively, use `/cl gui` while looking at a chest (works even with items in hand).
 
 ## Adding Password Protection
 

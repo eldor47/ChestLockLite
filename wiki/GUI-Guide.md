@@ -6,8 +6,9 @@ Complete guide to using the ChestLockLite GUI interface.
 
 ### Method 1: Sneak + Right-Click
 
-1. **Shift + Right-click** any chest (while sneaking)
+1. **Shift + Right-click** any chest (while sneaking and empty-handed)
 2. GUI opens automatically
+3. **Important:** You must have an empty hand - holding any item will prevent the GUI from opening (this prevents accidentally placing items like chests or hoppers)
 
 ### Method 2: Command
 
@@ -136,7 +137,8 @@ While GUI is open:
 
 **GUI won't open?**
 - Make sure you're sneaking when Shift + Right-clicking
-- Try `/cl gui` command instead
+- **Make sure your hand is empty** - holding any item prevents GUI from opening
+- Try `/cl gui` command instead (works even with items in hand)
 - Check `chestlocklite.gui` permission
 - Verify you're looking at a chest
 

@@ -22,7 +22,7 @@ A lightweight, simple chest locking plugin for Spigot 1.21+ servers. Lock chests
 - **Visual Feedback** - Particles and messages
 - **Admin Tools** - Admins can unlock any chest with override command
 - **High Performance** - Optimized database queries with indexes
-- **Easy Access** - Shift + Right-click to open GUI menu
+- **Easy Access** - Shift + Right-click (empty-handed) to open GUI menu
 - **Tab Completion** - Full autocomplete support for all commands
 
 ## Requirements
@@ -76,13 +76,13 @@ A lightweight, simple chest locking plugin for Spigot 1.21+ servers. Lock chests
 
 **Tab Completion:** All commands support tab completion! Press `TAB` to see available options.
 
-**GUI Access:** Shift + Right-click a chest to open the GUI menu!
+**GUI Access:** Shift + Right-click a chest (with empty hand) to open the GUI menu!
 
 ## Usage Examples
 
 ### Using the GUI (Recommended!)
 
-1. **Shift + Right-click** a chest (or use `/cl gui` while looking at one)
+1. **Shift + Right-click** a chest with an empty hand (or use `/cl gui` while looking at one)
 2. Click buttons in the menu to lock/unlock, set passwords, etc.
 3. Easy visual interface - no need to remember commands!
 
@@ -94,7 +94,7 @@ A lightweight, simple chest locking plugin for Spigot 1.21+ servers. Lock chests
 3. No command needed - just place and go!
 
 **Method 2: Using GUI**
-1. Shift + Right-click the chest (or `/cl gui`)
+1. Shift + Right-click the chest with an empty hand (or `/cl gui`)
 2. Click "Lock Chest" button
 
 **Method 3: Using Command**
@@ -114,7 +114,7 @@ Server: Tip: Use /cl password <password> to add password protection!
 
 **Method 1: Using GUI**
 1. Lock your chest first: `/cl lock` or via GUI
-2. Open GUI: Shift + Right-click chest
+2. Open GUI: Shift + Right-click chest (with empty hand)
 3. Click "Set Password" button
 4. Use the password input GUI to enter your password
 5. Click "Confirm Password" when done
@@ -133,7 +133,7 @@ Server: Password set successfully!
 
 **Method 1: Using GUI (for non-owners)**
 1. Look at a password-protected chest
-2. Shift + Right-click to open GUI
+2. Shift + Right-click with empty hand to open GUI
 3. Click "Enter Password" button
 4. Use the password input GUI to enter the password
 5. Click "Confirm Password" when done
@@ -166,7 +166,7 @@ The password is displayed in **real-time** as you build it, so you can see exact
 
 **Method 1: Using GUI (Recommended!)**
 1. Lock your chest first: `/cl lock` or via GUI
-2. Open GUI: Shift + Right-click chest
+2. Open GUI: Shift + Right-click chest (with empty hand)
 3. Click "Trusted Players" button
 4. Click "Add Trusted Player" button (or use `/cl trust <player>`)
 5. Click on a player head to remove trust
@@ -237,8 +237,9 @@ ChestLockLite includes a GUI menu for easy chest management.
 
 ### Opening the GUI
 
-- **Shift + Right-click** any chest (while sneaking)
+- **Shift + Right-click** any chest (while sneaking and empty-handed)
 - Or use `/cl gui` while looking at a chest
+- **Note:** You must have an empty hand to open the GUI via Shift + Right-click (prevents accidentally placing items)
 
 ### GUI Features
 
@@ -580,11 +581,12 @@ The plugin automatically detects all chest types using the `Chest` interface, ma
 - **All admin actions are logged to console** for security and audit purposes
 
 ### GUI System
-- Access via **Shift + Right-click** or `/cl gui`
+- Access via **Shift + Right-click** (with empty hand) or `/cl gui`
 - Shows different options based on lock status and permissions
 - Visual feedback with color-coded buttons
 - Admin override button only visible to admins
 - Password buttons adapt based on ownership and lock status
+- **Empty hand required** for Shift + Right-click to prevent accidental item placement
 
 ### Tab Completion
 - **First Argument**: Shows all available subcommands filtered by permissions
@@ -609,7 +611,7 @@ cd chestlocklite
 # Build with Maven
 mvn clean package
 
-# Find the jar in target/ChestLockLite-1.0.0.jar
+# Find the jar in target/ChestLockLite-1.0.1.jar
 ```
 
 ## Troubleshooting
@@ -634,6 +636,7 @@ mvn clean package
 - Make sure you have `chestlocklite.gui` permission
 - Try using `/cl gui` command instead of Shift + Right-click
 - Check if you're sneaking when using Shift + Right-click
+- **Make sure your hand is empty** - GUI only opens when holding nothing (prevents placing items)
 
 ### Password input GUI issues
 - Make sure you're clicking the character buttons correctly
