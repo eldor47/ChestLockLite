@@ -4,7 +4,6 @@ import com.chestlocklite.ChestLockLitePlugin;
 import com.chestlocklite.utils.MessageUtils;
 import com.chestlocklite.utils.PasswordHasher;
 import org.bukkit.block.Block;
-import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -19,6 +18,7 @@ import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.Material;
 import java.util.Iterator;
 import java.util.List;
 import java.util.HashMap;
@@ -59,8 +59,9 @@ public class ChestListener implements Listener {
             return;
         }
 
-        // Shift-right-click to open GUI
-        if (player.isSneaking() && player.hasPermission("chestlocklite.gui")) {
+        // Shift-right-click to open GUI (only if hand is empty)
+        if (player.isSneaking() && player.hasPermission("chestlocklite.gui") && 
+            player.getInventory().getItemInMainHand().getType() == Material.AIR) {
             org.bukkit.Location chestLocation = plugin.getLockManager().getPrimaryChestLocation(block);
             plugin.getLockGUI().openGUI(player, chestLocation);
             event.setCancelled(true);
