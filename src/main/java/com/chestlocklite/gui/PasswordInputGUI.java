@@ -76,17 +76,17 @@ public class PasswordInputGUI implements Listener {
                                 : "\n&c✗ Invalid password length")) :
                               "&7Enter the password to unlock")));
         
-        // Character buttons (0-9)
+        // Character buttons (0-9) - slots 9-18
         for (int i = 0; i < 10; i++) {
             gui.setItem(9 + i, createItem(Material.WHITE_STAINED_GLASS_PANE, 
                 "&b" + i, 
                 Arrays.asList("&7Click to add &e" + i + " &7to password")));
         }
         
-        // Letters A-Z
+        // Letters A-Z - slots 19-44 (moved from 18 to avoid conflict with number 9)
         char[] letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
         for (int i = 0; i < Math.min(26, 26); i++) {
-            int slot = 18 + i;
+            int slot = 19 + i;
             if (slot < 45) {
                 gui.setItem(slot, createItem(Material.LIGHT_BLUE_STAINED_GLASS_PANE, 
                     "&b" + letters[i], 
@@ -245,7 +245,7 @@ public class PasswordInputGUI implements Listener {
             return;
         }
         
-        // Number buttons (slots 9-18)
+        // Number buttons (slots 9-18 for numbers 0-9)
         if (slot >= 9 && slot <= 18) {
             int number = slot - 9;
             if (data.passwordBuilder.length() < plugin.getConfigManager().getMaxPasswordLength()) {
@@ -257,9 +257,9 @@ public class PasswordInputGUI implements Listener {
             return;
         }
         
-        // Letter buttons (slots 18-44)
-        if (slot >= 18 && slot < 45) {
-            int letterIndex = slot - 18;
+        // Letter buttons (slots 19-44 for letters A-Z)
+        if (slot >= 19 && slot < 45) {
+            int letterIndex = slot - 19;
             if (letterIndex < 26) {
                 char letter = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".charAt(letterIndex);
                 if (data.passwordBuilder.length() < plugin.getConfigManager().getMaxPasswordLength()) {

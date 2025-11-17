@@ -3,7 +3,7 @@
 [![Spigot](https://img.shields.io/badge/Spigot-1.21-blue.svg)](https://www.spigotmc.org/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-A lightweight, simple chest locking plugin for Spigot 1.21+ servers. Lock chests with owner protection or password protection, with full double-chest support and SQLite storage.
+A lightweight, simple container locking plugin for Spigot 1.21+ servers. Lock chests, barrels, hoppers, and furnaces with owner protection or password protection, with full double-chest support and SQLite storage.
 
 ## Features
 
@@ -17,6 +17,12 @@ A lightweight, simple chest locking plugin for Spigot 1.21+ servers. Lock chests
 - **Trusted Players System** - Trust specific players to access your locked chests
 - **Double Chest Support** - Automatically handles single and double chests
 - **All Chest Types** - Supports regular chests, trapped chests, copper chests, and all variants (except ender chests)
+- **Barrel Support** - Lock barrels with full feature support
+- **Hopper Support** - Lock hoppers and control hopper extraction (configurable)
+- **Furnace Support** - Lock furnaces, blast furnaces, and smokers (configurable)
+- **Hopper Control** - Per-container toggle to enable/disable hopper extraction and insertion
+- **Admin Notifications** - Admins see notifications when opening locked containers
+- **Container-Specific Messages** - Messages automatically show the correct container type (barrel, furnace, hopper, chest)
 - **SQLite Storage** - Fast, lightweight, no MySQL required
 - **Player Limits** - Configurable maximum chests per player
 - **Visual Feedback** - Particles and messages
@@ -46,9 +52,9 @@ A lightweight, simple chest locking plugin for Spigot 1.21+ servers. Lock chests
 
 | Command | Description | Permission |
 |---------|-------------|------------|
-| `/chestlock gui` or `/cl gui` | Open lock management GUI | `chestlocklite.gui` |
-| `/chestlock lock` or `/cl lock` | Lock the chest you're looking at | `chestlocklite.lock` |
-| `/chestlock unlock` or `/cl unlock` | Unlock your chest | `chestlocklite.unlock` |
+| `/chestlock gui` or `/cl gui` | Open lock management GUI (works on all containers) | `chestlocklite.gui` |
+| `/chestlock lock` or `/cl lock` | Lock the container you're looking at | `chestlocklite.lock` |
+| `/chestlock unlock` or `/cl unlock` | Unlock your container | `chestlocklite.unlock` |
 | `/chestlock password <password>` | Set password on your chest | `chestlocklite.password` |
 | `/chestlock password <password>` | Unlock password-protected chest | `chestlocklite.password` |
 | `/chestlock removepassword` | Remove password from your chest | `chestlocklite.password` |
@@ -76,15 +82,16 @@ A lightweight, simple chest locking plugin for Spigot 1.21+ servers. Lock chests
 
 **Tab Completion:** All commands support tab completion! Press `TAB` to see available options.
 
-**GUI Access:** Shift + Right-click a chest (with empty hand) to open the GUI menu!
+**GUI Access:** Shift + Right-click any container (chest, barrel, hopper, furnace) with an empty hand to open the GUI menu! The `/cl gui` command also works on all container types.
 
 ## Usage Examples
 
 ### Using the GUI (Recommended!)
 
-1. **Shift + Right-click** a chest with an empty hand (or use `/cl gui` while looking at one)
+1. **Shift + Right-click** any container (chest, barrel, hopper, furnace) with an empty hand (or use `/cl gui` while looking at one)
 2. Click buttons in the menu to lock/unlock, set passwords, etc.
 3. Easy visual interface - no need to remember commands!
+4. **Note:** All commands and GUI work on chests, barrels, hoppers, and furnaces (if enabled in config)
 
 ### Locking a Chest (Owner Only)
 
@@ -237,9 +244,10 @@ ChestLockLite includes a GUI menu for easy chest management.
 
 ### Opening the GUI
 
-- **Shift + Right-click** any chest (while sneaking and empty-handed)
-- Or use `/cl gui` while looking at a chest
+- **Shift + Right-click** any container (chest, barrel, hopper, furnace) while sneaking and empty-handed
+- Or use `/cl gui` while looking at any container
 - **Note:** You must have an empty hand to open the GUI via Shift + Right-click (prevents accidentally placing items)
+- **Works on all containers:** The GUI and all commands work on chests, barrels, hoppers, and furnaces (if enabled in config)
 
 ### GUI Features
 
@@ -251,6 +259,10 @@ ChestLockLite includes a GUI menu for easy chest management.
   - **Owners**: See "Trusted Players (X)" button showing count
   - **Trusted Players**: See "You are Trusted" indicator
   - Click to open dedicated trusted players management GUI
+- **Hopper Toggle** - Control hopper extraction and insertion per container (owner only)
+  - **Hopper Toggle** (slot 20) - Enable/disable hopper extraction and insertion
+  - Only visible when container is locked and hopper support is enabled in config
+  - **Note:** Furnaces don't extract items from containers, so there's no furnace toggle (furnaces can still be locked for protection)
 - **Info Display** - View lock information
 - **Admin Override** - Admins can force unlock any chest (shown if admin)
 - **Visual Feedback** - Color-coded buttons show current status
@@ -265,6 +277,7 @@ ChestLockLite includes a GUI menu for easy chest management.
 │  [Password]             │
 │  [Trusted Players]      │
 │  [Info]                 │
+│  [Hoppers]              │
 │                         │
 │  [Admin Override]       │
 │  [Close]                │
@@ -409,6 +422,15 @@ locks:
   
   # Maximum trusted players per chest
   max-trusted-players-per-chest: 20
+  
+  # Support for hoppers (allow locking hoppers)
+  allow-hoppers: true
+  
+  # Support for furnaces (allow locking furnaces, blast furnaces, smokers)
+  allow-furnaces: true
+  
+  # Show notification to admins when they open locked chests
+  admin-notification: true
 
 # Messages
 messages:
@@ -436,6 +458,8 @@ plugins/ChestLockLite/locks.db
 
 **Database Schema:**
 - `chest_locks` table stores all lock information
+  - Includes `hopper_enabled` column (v1.1.0+) for per-container hopper control
+  - Automatic migration from older versions
 - `trusted_players` table stores trusted player relationships
 - Both tables indexed by world and coordinates for fast lookups
 - Automatically handles double chests by storing primary location
@@ -472,7 +496,7 @@ plugins/ChestLockLite/locks.db
 ### Auto-Lock on Place
 
 When `auto-lock-on-place` is enabled in config:
-- Chests are automatically locked when placed
+- Chests are automatically locked when placed (barrels, hoppers, and furnaces are not auto-locked)
 - Lock is assigned to the player who placed the chest
 - Works for both single and double chests
 - Respects chest limits and permissions
@@ -485,10 +509,11 @@ locks:
   auto-lock-on-place: true  # Enable auto-lock
 ```
 
-### Single Chests
-- Locking stores the chest location in the database
+### Single Containers
+- Locking stores the container location in the database
 - Only the owner can open (unless password is set)
-- Can be auto-locked on placement if enabled in config
+- Can be auto-locked on placement if enabled in config (chests only)
+- Works for chests, barrels, hoppers, and furnaces
 
 ### Double Chests
 - Automatically detects double chests
@@ -496,15 +521,37 @@ locks:
 - Locking either side locks both sides
 - Both sides are protected by the same lock
 - Auto-lock works on double chests too - placing either side locks both
+- Hopper settings apply to both sides
 
-### Supported Chest Types
+### Supported Container Types
+
+**Chests:**
 - **Regular Chests** (`CHEST`) - Standard wooden chests
 - **Trapped Chests** (`TRAPPED_CHEST`) - Redstone-triggered chests
 - **Copper Chests** (`COPPER_CHEST`) - Copper variant chests (if available)
 - **All Chest Variants** - Any block that implements the Chest interface
 - **Ender Chests** (`ENDER_CHEST`) - Excluded (has their own storage system)
 
-The plugin automatically detects all chest types using the `Chest` interface, making it compatible with future chest variants without code changes.
+**Other Containers (v1.1.0+):**
+- **Barrels** (`BARREL`) - Full locking support
+- **Hoppers** (`HOPPER`) - Lockable if `allow-hoppers: true` in config
+- **Furnaces** (`FURNACE`, `BLAST_FURNACE`, `SMOKER`) - Lockable if `allow-furnaces: true` in config
+
+The plugin automatically detects all container types, making it compatible with future variants. All container types support the same features: passwords, trusted players, GUI, etc.
+
+### Hopper Control
+
+**Per-Container Settings:**
+- Each locked container can have hopper access enabled/disabled individually
+- Controlled via GUI toggle button (owner only)
+- Default: Enabled for all existing and new locks
+- When disabled, hoppers cannot extract or insert items from/to the container
+- **Note:** Furnaces don't extract items from containers, so there's no furnace toggle (furnaces can still be locked for protection)
+
+**Server-Wide Settings:**
+- `allow-hoppers: true/false` - Enable/disable hopper locking globally
+- `allow-furnaces: true/false` - Enable/disable furnace locking globally
+- When disabled, these container types cannot be locked at all
 
 ### Password Protection
 
@@ -578,6 +625,9 @@ The plugin automatically detects all chest types using the `Chest` interface, ma
   - Example: `/cl cleararea 20` clears locks within 20 blocks
   - Tab completion suggests common radius values (5, 10, 15, 20, 25, 50, 100)
 - **Bypass Permission**: Admins with `chestlocklite.bypass` can open any chest without unlocking
+- **Admin Notifications**: Admins see a notification when opening locked containers (configurable)
+  - Shows: "[Admin] This chest is locked by [Owner]"
+  - Controlled by `admin-notification` setting in config
 - **All admin actions are logged to console** for security and audit purposes
 
 ### GUI System
@@ -611,7 +661,7 @@ cd chestlocklite
 # Build with Maven
 mvn clean package
 
-# Find the jar in target/ChestLockLite-1.0.1.jar
+# Find the jar in target/ChestLockLite-1.1.0.jar
 ```
 
 ## Troubleshooting
@@ -638,16 +688,30 @@ mvn clean package
 - Check if you're sneaking when using Shift + Right-click
 - **Make sure your hand is empty** - GUI only opens when holding nothing (prevents placing items)
 
+### Hopper extraction not working
+- Check if hopper support is enabled in config (`allow-hoppers: true`)
+- Verify the container is locked
+- Check the hopper toggle in GUI - it may be disabled for that container
+- Hoppers cannot extract from locked containers when hopper access is disabled
+
+### Container type not lockable
+- Barrels are always lockable
+- Hoppers require `allow-hoppers: true` in config
+- Furnaces require `allow-furnaces: true` in config
+- Check your config.yml settings and reload with `/cl reload`
+
 ### Password input GUI issues
 - Make sure you're clicking the character buttons correctly
 - Password is displayed in real-time - check the center display
 - Use "Clear All" if you need to start over
 - Use "Backspace" to remove last character
+- **Fixed in v1.1.0**: All letters and numbers now work correctly (previously A added 9)
 
 ### Database errors
 - Check file permissions on `plugins/ChestLockLite/` folder
 - Ensure the plugin folder is writable
 - Check server logs for detailed error messages
+- **Upgrading from v1.0.x?** Migration runs automatically - check console for migration messages
 
 ### Performance issues
 - SQLite handles thousands of locks efficiently

@@ -55,7 +55,7 @@ public class ChestListener implements Listener {
         Player player = event.getPlayer();
         Block block = event.getClickedBlock();
 
-        if (block == null || !plugin.getLockManager().isChest(block)) {
+        if (block == null || !plugin.getLockManager().isLockableContainer(block)) {
             return;
         }
 
@@ -70,6 +70,16 @@ public class ChestListener implements Listener {
 
         // Admin bypass
         if (player.hasPermission("chestlocklite.bypass")) {
+            // Show notification to admin if enabled
+            if (plugin.getConfigManager().isAdminNotificationEnabled()) {
+                com.chestlocklite.managers.DatabaseManager.LockData adminLock = 
+                    plugin.getLockManager().getLockInfo(plugin.getLockManager().getPrimaryChestLocation(block));
+                if (adminLock != null) {
+                    String containerType = getContainerTypeName(block);
+                    player.sendMessage(com.chestlocklite.utils.MessageUtils.colorize(
+                        "&7[Admin] &eThis " + containerType + " is locked by &6" + adminLock.getOwnerName()));
+                }
+            }
             return;
         }
 
@@ -118,18 +128,16 @@ public class ChestListener implements Listener {
             
             // Show password locked message with owner name
             player.sendMessage(MessageUtils.colorize(
-                "&cThis chest is password protected by &e" + lock.getOwnerName() + "&c!"));
-            player.sendMessage(MessageUtils.colorize(
-                "&7Use &e/cl password <password> &7while looking at this chest to unlock it."));
+                plugin.getConfigManager().getPasswordProtectedMessage(block)));
             
             return;
         }
 
-        // Chest is locked without password, only owner can open
+        // Container is locked without password, only owner can open
         event.setCancelled(true);
         
         player.sendMessage(MessageUtils.colorize(
-            plugin.getConfigManager().getChestLockedMessage()));
+            plugin.getConfigManager().getChestLockedMessage(block)));
         
         player.sendMessage(MessageUtils.colorize(
             plugin.getConfigManager().getLockedByOwnerMessage(lock.getOwnerName())));
@@ -152,8 +160,8 @@ public class ChestListener implements Listener {
         Player player = event.getPlayer();
         Block block = event.getBlock();
 
-        // Check if block is a chest
-        if (!plugin.getLockManager().isChest(block)) {
+        // Check if block is a lockable container
+        if (!plugin.getLockManager().isLockableContainer(block)) {
             return;
         }
 
@@ -202,10 +210,10 @@ public class ChestListener implements Listener {
             return; // Owner can break their own chests
         }
 
-        // Cancel event - chest is locked and player is not owner or admin
+        // Cancel event - container is locked and player is not owner or admin
         event.setCancelled(true);
         player.sendMessage(MessageUtils.colorize(
-            plugin.getConfigManager().getCannotBreakChestMessage(lock.getOwnerName())));
+            plugin.getConfigManager().getCannotBreakChestMessage(block, lock.getOwnerName())));
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = false)
@@ -220,7 +228,7 @@ public class ChestListener implements Listener {
         while (iterator.hasNext()) {
             Block block = iterator.next();
             
-            if (!plugin.getLockManager().isChest(block)) {
+            if (!plugin.getLockManager().isLockableContainer(block)) {
                 continue;
             }
             
@@ -250,7 +258,7 @@ public class ChestListener implements Listener {
         while (iterator.hasNext()) {
             Block block = iterator.next();
             
-            if (!plugin.getLockManager().isChest(block)) {
+            if (!plugin.getLockManager().isLockableContainer(block)) {
                 continue;
             }
             
@@ -278,7 +286,7 @@ public class ChestListener implements Listener {
         // Protect locked chests from fire
         Block block = event.getBlock();
         
-        if (!plugin.getLockManager().isChest(block)) {
+        if (!plugin.getLockManager().isLockableContainer(block)) {
             return;
         }
         
@@ -305,7 +313,7 @@ public class ChestListener implements Listener {
         // Protect locked chests from melting/burning (lava, fire spreading)
         Block block = event.getBlock();
         
-        if (!plugin.getLockManager().isChest(block)) {
+        if (!plugin.getLockManager().isLockableContainer(block)) {
             return;
         }
         
@@ -333,7 +341,7 @@ public class ChestListener implements Listener {
         List<Block> blocks = event.getBlocks();
         
         for (Block block : blocks) {
-            if (!plugin.getLockManager().isChest(block)) {
+            if (!plugin.getLockManager().isLockableContainer(block)) {
                 continue;
             }
             
@@ -363,7 +371,7 @@ public class ChestListener implements Listener {
         List<Block> blocks = event.getBlocks();
         
         for (Block block : blocks) {
-            if (!plugin.getLockManager().isChest(block)) {
+            if (!plugin.getLockManager().isLockableContainer(block)) {
                 continue;
             }
             
@@ -400,5 +408,24 @@ public class ChestListener implements Listener {
 
     public void clearPasswordAttempt(UUID playerUUID) {
         passwordAttempts.remove(playerUUID);
+    }
+    
+    private String getContainerTypeName(Block block) {
+        Material type = block.getType();
+        
+        if (type == Material.BARREL) {
+            return "barrel";
+        } else if (type == Material.HOPPER) {
+            return "hopper";
+        } else if (type == Material.FURNACE) {
+            return "furnace";
+        } else if (type == Material.BLAST_FURNACE) {
+            return "blast furnace";
+        } else if (type == Material.SMOKER) {
+            return "smoker";
+        } else {
+            // Default to chest for all chest types
+            return "chest";
+        }
     }
 }

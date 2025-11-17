@@ -6,6 +6,7 @@ import com.chestlocklite.gui.PasswordInputGUI;
 import com.chestlocklite.gui.TrustedPlayersGUI;
 import com.chestlocklite.listeners.BlockPlaceListener;
 import com.chestlocklite.listeners.ChestListener;
+import com.chestlocklite.listeners.HopperListener;
 import com.chestlocklite.managers.ConfigManager;
 import com.chestlocklite.managers.DatabaseManager;
 import com.chestlocklite.managers.LockManager;
@@ -58,6 +59,9 @@ public class ChestLockLitePlugin extends JavaPlugin {
         
         // Register block place listener for auto-lock feature
         getServer().getPluginManager().registerEvents(new BlockPlaceListener(this), this);
+        
+        // Register hopper listener for hopper extraction prevention
+        getServer().getPluginManager().registerEvents(new HopperListener(this), this);
         
         // Initialize and register GUI
         this.lockGUI = new LockGUI(this);

@@ -51,6 +51,7 @@ public class DatabaseManager {
                 owner_uuid TEXT NOT NULL,
                 owner_name TEXT NOT NULL,
                 password TEXT,
+                hopper_enabled INTEGER DEFAULT 1,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 UNIQUE(world, x, y, z)
             )
@@ -59,6 +60,10 @@ public class DatabaseManager {
         try (Statement stmt = connection.createStatement()) {
             stmt.execute(createLocksTable);
         }
+        
+        // Migrate existing databases: Add new columns if they don't exist
+        // This handles upgrades from older versions
+        migrateDatabase();
 
         // Create index for faster lookups
         String createIndex = """
@@ -99,6 +104,41 @@ public class DatabaseManager {
 
         if (plugin.getConfigManager().isDebug()) {
             plugin.getLogger().info("Database tables created/verified successfully");
+        }
+    }
+
+    private void migrateDatabase() {
+        // Check if columns exist and add them if they don't (for upgrades from older versions)
+        try {
+            // Check if hopper_enabled column exists
+            boolean hasHopperColumn = columnExists("hopper_enabled");
+            if (!hasHopperColumn) {
+                try (Statement stmt = connection.createStatement()) {
+                    stmt.execute("ALTER TABLE chest_locks ADD COLUMN hopper_enabled INTEGER DEFAULT 1");
+                    plugin.getLogger().info("Database migrated: Added hopper_enabled column");
+                }
+            }
+        } catch (SQLException e) {
+            plugin.getLogger().warning("Error during database migration: " + e.getMessage());
+            // Don't fail plugin startup if migration fails - columns might already exist
+        }
+    }
+
+    private boolean columnExists(String columnName) throws SQLException {
+        // SQLite doesn't have a direct way to check if a column exists
+        // We'll try to query the column and catch the exception if it doesn't exist
+        String sql = "SELECT " + columnName + " FROM chest_locks LIMIT 1";
+        try (Statement stmt = connection.createStatement()) {
+            stmt.executeQuery(sql);
+            return true; // Column exists
+        } catch (SQLException e) {
+            // Check if error is about missing column
+            String errorMsg = e.getMessage().toLowerCase();
+            if (errorMsg.contains("no such column") || errorMsg.contains("unknown column")) {
+                return false; // Column doesn't exist
+            }
+            // Some other error (like table doesn't exist) - rethrow
+            throw e;
         }
     }
 
@@ -149,7 +189,7 @@ public class DatabaseManager {
 
     public LockData getLock(Location location) throws SQLException {
         String sql = """
-            SELECT owner_uuid, owner_name, password FROM chest_locks
+            SELECT owner_uuid, owner_name, password, hopper_enabled FROM chest_locks
             WHERE world = ? AND x = ? AND y = ? AND z = ?
             """;
 
@@ -161,10 +201,16 @@ public class DatabaseManager {
 
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
+                boolean hopperEnabled = rs.getInt("hopper_enabled") == 1;
+                // Handle null values for existing databases
+                if (rs.wasNull()) {
+                    hopperEnabled = true;
+                }
                 return new LockData(
                     UUID.fromString(rs.getString("owner_uuid")),
                     rs.getString("owner_name"),
-                    rs.getString("password")
+                    rs.getString("password"),
+                    hopperEnabled
                 );
             }
         }
@@ -400,16 +446,37 @@ public class DatabaseManager {
         return connection;
     }
 
+    public void setHopperEnabled(Location location, boolean enabled) throws SQLException {
+        String sql = """
+            UPDATE chest_locks SET hopper_enabled = ? WHERE world = ? AND x = ? AND y = ? AND z = ?
+            """;
+
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setInt(1, enabled ? 1 : 0);
+            pstmt.setString(2, location.getWorld().getName());
+            pstmt.setInt(3, location.getBlockX());
+            pstmt.setInt(4, location.getBlockY());
+            pstmt.setInt(5, location.getBlockZ());
+            pstmt.executeUpdate();
+        }
+    }
+
     // Lock data class
     public static class LockData {
         private final UUID ownerUUID;
         private final String ownerName;
         private final String password;
+        private final boolean hopperEnabled;
 
         public LockData(UUID ownerUUID, String ownerName, String password) {
+            this(ownerUUID, ownerName, password, true);
+        }
+
+        public LockData(UUID ownerUUID, String ownerName, String password, boolean hopperEnabled) {
             this.ownerUUID = ownerUUID;
             this.ownerName = ownerName;
             this.password = password;
+            this.hopperEnabled = hopperEnabled;
         }
 
         public UUID getOwnerUUID() {
@@ -426,6 +493,10 @@ public class DatabaseManager {
 
         public boolean hasPassword() {
             return password != null && !password.isEmpty();
+        }
+
+        public boolean isHopperEnabled() {
+            return hopperEnabled;
         }
     }
 

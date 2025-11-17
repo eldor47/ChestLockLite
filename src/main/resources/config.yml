@@ -46,33 +46,43 @@ locks:
   # Allow trusted players system
   allow-trusted-players: true
   
+  # Support for hoppers (allow locking hoppers)
+  allow-hoppers: true
+  
+  # Support for furnaces (allow locking furnaces, blast furnaces, smokers)
+  allow-furnaces: true
+  
+  # Show notification to admins when they open locked chests
+  admin-notification: true
+  
   # Maximum trusted players per chest
   max-trusted-players-per-chest: 20
 
 # Messages
+# Use {type} placeholder to automatically replace with container type (chest, barrel, hopper, furnace, etc.)
 messages:
   # Message when chest is locked
-  chest-locked: "&cThis chest is locked!"
+  chest-locked: "&cThis {type} is locked!"
   
   # Message when locked by owner
   locked-by-owner: "&eLocked by: &6{owner}"
   
   # Message when trying to break locked chest
-  cannot-break-chest: "&cYou cannot break this chest! It is locked by &e{owner}&c."
+  cannot-break-chest: "&cYou cannot break this {type}! It is locked by &e{owner}&c."
   
   # Message when password protected
-  password-protected: "&eThis chest is password protected. Use &6/cl password <password> &eto unlock."
+  password-protected: "&eThis {type} is password protected. Use &6/cl password <password> &eto unlock."
   
   # Success messages
-  lock-success: "&aChest locked successfully!"
-  unlock-success: "&aChest unlocked successfully!"
+  lock-success: "&a{type} locked successfully!"
+  unlock-success: "&a{type} unlocked successfully!"
   password-set: "&aPassword set successfully!"
   password-removed: "&aPassword removed successfully!"
   
   # Error messages
-  not-locked: "&cThis chest is not locked!"
-  already-locked: "&cThis chest is already locked!"
-  not-owner: "&cYou are not the owner of this chest!"
+  not-locked: "&cThis {type} is not locked!"
+  already-locked: "&cThis {type} is already locked!"
+  not-owner: "&cYou are not the owner of this {type}!"
   wrong-password: "&cIncorrect password!"
   password-cooldown: "&cPlease wait {seconds} seconds before trying another password!"
   max-chests-reached: "&cYou have reached the maximum number of locked chests ({max})!"
