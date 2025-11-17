@@ -32,8 +32,8 @@ public class BlockPlaceListener implements Listener {
         Player player = event.getPlayer();
         Block block = event.getBlock();
 
-        // Check if placed block is a chest
-        if (!plugin.getLockManager().isChest(block)) {
+        // Check if placed block is a lockable container
+        if (!plugin.getLockManager().isLockableContainer(block)) {
             return;
         }
 
@@ -69,7 +69,7 @@ public class BlockPlaceListener implements Listener {
         org.bukkit.Bukkit.getScheduler().runTask(plugin, () -> {
             if (plugin.getLockManager().lockChest(chestLocation, player)) {
                 player.sendMessage(MessageUtils.colorize(
-                    plugin.getConfigManager().getLockSuccessMessage()));
+                    plugin.getConfigManager().getLockSuccessMessage(block)));
                 if (plugin.getConfigManager().isPasswordsAllowed()) {
                     player.sendMessage(MessageUtils.colorize(
                         "&7Tip: Use &e/cl password <password> &7to add password protection!"));

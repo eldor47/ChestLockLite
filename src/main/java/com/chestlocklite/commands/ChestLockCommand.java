@@ -195,7 +195,7 @@ public class ChestLockCommand implements CommandExecutor, TabCompleter {
                 player.sendMessage(MessageUtils.colorize("&cThis chest is already locked by you!"));
             } else {
                 player.sendMessage(MessageUtils.colorize(
-                    plugin.getConfigManager().getAlreadyLockedMessage()));
+                    plugin.getConfigManager().getAlreadyLockedMessage(targetBlock)));
             }
             return;
         }
@@ -218,7 +218,7 @@ public class ChestLockCommand implements CommandExecutor, TabCompleter {
         // Lock the chest
         if (plugin.getLockManager().lockChest(chestLocation, player)) {
             player.sendMessage(MessageUtils.colorize(
-                plugin.getConfigManager().getLockSuccessMessage()));
+                plugin.getConfigManager().getLockSuccessMessage(targetBlock)));
             
             if (plugin.getConfigManager().isPasswordsAllowed()) {
                 player.sendMessage(MessageUtils.colorize(
@@ -242,7 +242,7 @@ public class ChestLockCommand implements CommandExecutor, TabCompleter {
         DatabaseManager.LockData lock = plugin.getLockManager().getLockInfo(chestLocation);
         if (lock == null) {
             player.sendMessage(MessageUtils.colorize(
-                plugin.getConfigManager().getNotLockedMessage()));
+                plugin.getConfigManager().getNotLockedMessage(targetBlock)));
             return;
         }
 
@@ -250,13 +250,13 @@ public class ChestLockCommand implements CommandExecutor, TabCompleter {
         if (!lock.getOwnerUUID().equals(player.getUniqueId()) && 
             !player.hasPermission("chestlocklite.admin")) {
             player.sendMessage(MessageUtils.colorize(
-                plugin.getConfigManager().getNotOwnerMessage()));
+                plugin.getConfigManager().getNotOwnerMessage(targetBlock)));
             return;
         }
 
         if (plugin.getLockManager().unlockChest(chestLocation, player)) {
             player.sendMessage(MessageUtils.colorize(
-                plugin.getConfigManager().getUnlockSuccessMessage()));
+                plugin.getConfigManager().getUnlockSuccessMessage(targetBlock)));
         } else {
             player.sendMessage(MessageUtils.colorize("&cFailed to unlock chest!"));
         }
@@ -282,7 +282,7 @@ public class ChestLockCommand implements CommandExecutor, TabCompleter {
         if (lock == null) {
             // Chest not locked, can't set password
             player.sendMessage(MessageUtils.colorize(
-                plugin.getConfigManager().getNotLockedMessage()));
+                plugin.getConfigManager().getNotLockedMessage(targetBlock)));
             return;
         }
 
@@ -362,13 +362,13 @@ public class ChestLockCommand implements CommandExecutor, TabCompleter {
         DatabaseManager.LockData lock = plugin.getLockManager().getLockInfo(chestLocation);
         if (lock == null) {
             player.sendMessage(MessageUtils.colorize(
-                plugin.getConfigManager().getNotLockedMessage()));
+                plugin.getConfigManager().getNotLockedMessage(targetBlock)));
             return;
         }
 
         if (!lock.getOwnerUUID().equals(player.getUniqueId())) {
             player.sendMessage(MessageUtils.colorize(
-                plugin.getConfigManager().getNotOwnerMessage()));
+                plugin.getConfigManager().getNotOwnerMessage(targetBlock)));
             return;
         }
 
@@ -604,7 +604,7 @@ public class ChestLockCommand implements CommandExecutor, TabCompleter {
 
         if (!lock.getOwnerUUID().equals(player.getUniqueId())) {
             player.sendMessage(MessageUtils.colorize(
-                plugin.getConfigManager().getNotOwnerMessage()));
+                plugin.getConfigManager().getNotOwnerMessage(targetBlock)));
             return;
         }
 
@@ -660,7 +660,7 @@ public class ChestLockCommand implements CommandExecutor, TabCompleter {
 
         if (!lock.getOwnerUUID().equals(player.getUniqueId())) {
             player.sendMessage(MessageUtils.colorize(
-                plugin.getConfigManager().getNotOwnerMessage()));
+                plugin.getConfigManager().getNotOwnerMessage(targetBlock)));
             return;
         }
 
@@ -727,7 +727,7 @@ public class ChestLockCommand implements CommandExecutor, TabCompleter {
 
         if (!lock.getOwnerUUID().equals(player.getUniqueId())) {
             player.sendMessage(MessageUtils.colorize(
-                plugin.getConfigManager().getNotOwnerMessage()));
+                plugin.getConfigManager().getNotOwnerMessage(targetBlock)));
             return;
         }
 
@@ -754,7 +754,7 @@ public class ChestLockCommand implements CommandExecutor, TabCompleter {
     private Block getTargetChest(Player player) {
         Block targetBlock = player.getTargetBlock(null, 5);
         
-        if (targetBlock == null || !plugin.getLockManager().isChest(targetBlock)) {
+        if (targetBlock == null || !plugin.getLockManager().isLockableContainer(targetBlock)) {
             return null;
         }
 

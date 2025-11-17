@@ -118,6 +118,15 @@ public class LockGUI implements Listener {
             "&bChest Information", 
             Arrays.asList("&7Click to view lock info")));
         
+        // Hopper toggle button (owner only, if locked and hopper support enabled)
+        if (isLocked && isOwner && plugin.getConfigManager().isHopperSupportEnabled()) {
+            boolean hopperEnabled = lock.isHopperEnabled();
+            gui.setItem(20, createItem(hopperEnabled ? Material.HOPPER : Material.BARRIER, 
+                hopperEnabled ? "&aHoppers: Enabled" : "&cHoppers: Disabled", 
+                Arrays.asList("&7Click to toggle hopper access",
+                              hopperEnabled ? "&7Hoppers can extract/insert items" : "&7Hoppers cannot extract/insert items")));
+        }
+        
         // Admin override button (admin only)
         if (isAdmin && isLocked && !isOwner) {
             gui.setItem(22, createItem(Material.COMMAND_BLOCK, 
@@ -180,14 +189,15 @@ public class LockGUI implements Listener {
         // Lock/Unlock button
         if (clickedType == Material.IRON_BLOCK && event.getSlot() == 11) {
             // Lock chest
+            org.bukkit.block.Block block = chestLocation.getBlock();
             if (plugin.getLockManager().lockChest(chestLocation, player)) {
                 player.sendMessage(MessageUtils.colorize(
-                    plugin.getConfigManager().getLockSuccessMessage()));
+                    plugin.getConfigManager().getLockSuccessMessage(block)));
                 // Refresh GUI to show updated state (now locked)
                 refreshGUI(player, chestLocation);
             } else {
                 player.sendMessage(MessageUtils.colorize(
-                    plugin.getConfigManager().getAlreadyLockedMessage()));
+                    plugin.getConfigManager().getAlreadyLockedMessage(block)));
             }
             return;
         }
@@ -195,9 +205,10 @@ public class LockGUI implements Listener {
         if (clickedType == Material.TRIPWIRE_HOOK && event.getSlot() == 11) {
             // Unlock chest
             if (isOwner || isAdmin) {
+                org.bukkit.block.Block block = chestLocation.getBlock();
                 if (plugin.getLockManager().unlockChest(chestLocation, player)) {
                     player.sendMessage(MessageUtils.colorize(
-                        plugin.getConfigManager().getUnlockSuccessMessage()));
+                        plugin.getConfigManager().getUnlockSuccessMessage(block)));
                     // Refresh GUI to show updated state (now unlocked)
                     refreshGUI(player, chestLocation);
                 } else {
@@ -252,6 +263,24 @@ public class LockGUI implements Listener {
         if (clickedType == Material.BOOK && event.getSlot() == 15) {
             player.closeInventory();
             showInfo(player, chestLocation);
+            return;
+        }
+
+        // Hopper toggle button
+        if ((clickedType == Material.HOPPER || clickedType == Material.BARRIER) && event.getSlot() == 20) {
+            if (isOwner && isLocked && plugin.getConfigManager().isHopperSupportEnabled()) {
+                boolean currentState = lock.isHopperEnabled();
+                try {
+                    plugin.getDatabaseManager().setHopperEnabled(chestLocation, !currentState);
+                    player.sendMessage(MessageUtils.colorize(
+                        !currentState ? "&aHoppers enabled for this container!" : "&cHoppers disabled for this container!"));
+                    // Refresh GUI to show updated state
+                    refreshGUI(player, chestLocation);
+                } catch (java.sql.SQLException e) {
+                    player.sendMessage(MessageUtils.colorize("&cFailed to toggle hopper setting!"));
+                    plugin.getLogger().warning("Error toggling hopper enabled: " + e.getMessage());
+                }
+            }
             return;
         }
 
@@ -383,6 +412,17 @@ public class LockGUI implements Listener {
                               "&7to enable passwords")));
         }
         
+        // Update Hopper toggle button
+        if (isLocked && isOwner && plugin.getConfigManager().isHopperSupportEnabled()) {
+            boolean hopperEnabled = lock.isHopperEnabled();
+            gui.setItem(20, createItem(hopperEnabled ? Material.HOPPER : Material.BARRIER, 
+                hopperEnabled ? "&aHoppers: Enabled" : "&cHoppers: Disabled", 
+                Arrays.asList("&7Click to toggle hopper access",
+                              hopperEnabled ? "&7Hoppers can extract/insert items" : "&7Hoppers cannot extract/insert items")));
+        } else {
+            gui.setItem(20, null);
+        }
+        
         // Update Admin override button
         if (isAdmin && isLocked && !isOwner) {
             gui.setItem(22, createItem(Material.COMMAND_BLOCK, 
@@ -391,8 +431,9 @@ public class LockGUI implements Listener {
                               "&7this chest (Admin only)")));
         } else {
             gui.setItem(22, null);
-            fillEmptySlots(gui); // Refill empty slots
         }
+        
+        fillEmptySlots(gui); // Refill empty slots
     }
 
     private void fillEmptySlots(Inventory inventory) {

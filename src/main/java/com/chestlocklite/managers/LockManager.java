@@ -30,6 +30,33 @@ public class LockManager {
         return state instanceof Chest;
     }
 
+    public boolean isLockableContainer(Block block) {
+        Material type = block.getType();
+        
+        // Check for chests (excluding ender chests)
+        if (isChest(block)) {
+            return true;
+        }
+        
+        // Check for barrels
+        if (type == Material.BARREL) {
+            return true;
+        }
+        
+        // Check for hoppers (if enabled in config)
+        if (type == Material.HOPPER && plugin.getConfigManager().isHopperSupportEnabled()) {
+            return true;
+        }
+        
+        // Check for furnaces (if enabled in config)
+        if ((type == Material.FURNACE || type == Material.BLAST_FURNACE || 
+             type == Material.SMOKER) && plugin.getConfigManager().isFurnaceSupportEnabled()) {
+            return true;
+        }
+        
+        return false;
+    }
+
     public Chest getChest(Block block) {
         if (!isChest(block)) {
             return null;
@@ -67,6 +94,11 @@ public class LockManager {
     }
 
     public Location getPrimaryChestLocation(Block chestBlock) {
+        // For non-chest containers, just return the block location
+        if (!isChest(chestBlock)) {
+            return chestBlock.getLocation();
+        }
+        
         Chest chest = getChest(chestBlock);
         if (chest == null) {
             return chestBlock.getLocation();

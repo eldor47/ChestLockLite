@@ -67,9 +67,83 @@ public class ConfigManager {
         return config.getBoolean("locks.piston-protection", true);
     }
 
+    public boolean isHopperSupportEnabled() {
+        return config.getBoolean("locks.allow-hoppers", true);
+    }
+
+    public boolean isFurnaceSupportEnabled() {
+        return config.getBoolean("locks.allow-furnaces", true);
+    }
+
+    public boolean isAdminNotificationEnabled() {
+        return config.getBoolean("locks.admin-notification", true);
+    }
+
     // Messages
-    public String getChestLockedMessage() {
-        return config.getString("messages.chest-locked", "&cThis chest is locked!");
+    public String getChestLockedMessage(org.bukkit.block.Block block) {
+        String containerType = getContainerTypeName(block);
+        String defaultMessage = "&cThis " + containerType + " is locked!";
+        String message = config.getString("messages.chest-locked", defaultMessage);
+        // Replace {type} placeholder if present, otherwise use default
+        if (message.contains("{type}")) {
+            return message.replace("{type}", containerType);
+        }
+        // If config doesn't have {type}, use the default with correct type
+        return defaultMessage;
+    }
+    
+    public String getContainerTypeName(org.bukkit.block.Block block) {
+        org.bukkit.Material type = block.getType();
+        
+        // Handle barrels
+        if (type == org.bukkit.Material.BARREL) {
+            return "barrel";
+        }
+        
+        // Handle hoppers
+        if (type == org.bukkit.Material.HOPPER) {
+            return "hopper";
+        }
+        
+        // Handle furnaces
+        if (type == org.bukkit.Material.FURNACE) {
+            return "furnace";
+        }
+        if (type == org.bukkit.Material.BLAST_FURNACE) {
+            return "blast furnace";
+        }
+        if (type == org.bukkit.Material.SMOKER) {
+            return "smoker";
+        }
+        
+        // Handle chest types
+        if (type == org.bukkit.Material.CHEST) {
+            return "chest";
+        }
+        if (type == org.bukkit.Material.TRAPPED_CHEST) {
+            return "trapped chest";
+        }
+        
+        // Try to handle COPPER_CHEST if it exists (may not be available in all versions)
+        try {
+            org.bukkit.Material copperChest = org.bukkit.Material.valueOf("COPPER_CHEST");
+            if (type == copperChest) {
+                return "copper chest";
+            }
+        } catch (IllegalArgumentException e) {
+            // COPPER_CHEST doesn't exist in this version, ignore
+        }
+        
+        // Default fallback for any other chest-like blocks
+        return "chest";
+    }
+    
+    private String replaceTypePlaceholder(String message, org.bukkit.block.Block block) {
+        if (message == null) {
+            return null;
+        }
+        String containerType = getContainerTypeName(block);
+        return message.replace("{type}", containerType);
     }
 
     public String getLockedByOwnerMessage(String owner) {
@@ -77,22 +151,26 @@ public class ConfigManager {
                 .replace("{owner}", owner);
     }
 
-    public String getCannotBreakChestMessage(String owner) {
-        return config.getString("messages.cannot-break-chest", "&cYou cannot break this chest! It is locked by &e{owner}&c.")
-                .replace("{owner}", owner);
+    public String getCannotBreakChestMessage(org.bukkit.block.Block block, String owner) {
+        String message = config.getString("messages.cannot-break-chest", "&cYou cannot break this {type}! It is locked by &e{owner}&c.");
+        message = replaceTypePlaceholder(message, block);
+        return message.replace("{owner}", owner);
     }
 
-    public String getPasswordProtectedMessage() {
-        return config.getString("messages.password-protected", 
-                "&eThis chest is password protected. Use &6/cl password <password> &eto unlock.");
+    public String getPasswordProtectedMessage(org.bukkit.block.Block block) {
+        String message = config.getString("messages.password-protected", 
+                "&eThis {type} is password protected. Use &6/cl password <password> &eto unlock.");
+        return replaceTypePlaceholder(message, block);
     }
 
-    public String getLockSuccessMessage() {
-        return config.getString("messages.lock-success", "&aChest locked successfully!");
+    public String getLockSuccessMessage(org.bukkit.block.Block block) {
+        String message = config.getString("messages.lock-success", "&a{type} locked successfully!");
+        return replaceTypePlaceholder(message, block);
     }
 
-    public String getUnlockSuccessMessage() {
-        return config.getString("messages.unlock-success", "&aChest unlocked successfully!");
+    public String getUnlockSuccessMessage(org.bukkit.block.Block block) {
+        String message = config.getString("messages.unlock-success", "&a{type} unlocked successfully!");
+        return replaceTypePlaceholder(message, block);
     }
 
     public String getPasswordSetMessage() {
@@ -103,16 +181,19 @@ public class ConfigManager {
         return config.getString("messages.password-removed", "&aPassword removed successfully!");
     }
 
-    public String getNotLockedMessage() {
-        return config.getString("messages.not-locked", "&cThis chest is not locked!");
+    public String getNotLockedMessage(org.bukkit.block.Block block) {
+        String message = config.getString("messages.not-locked", "&cThis {type} is not locked!");
+        return replaceTypePlaceholder(message, block);
     }
 
-    public String getAlreadyLockedMessage() {
-        return config.getString("messages.already-locked", "&cThis chest is already locked!");
+    public String getAlreadyLockedMessage(org.bukkit.block.Block block) {
+        String message = config.getString("messages.already-locked", "&cThis {type} is already locked!");
+        return replaceTypePlaceholder(message, block);
     }
 
-    public String getNotOwnerMessage() {
-        return config.getString("messages.not-owner", "&cYou are not the owner of this chest!");
+    public String getNotOwnerMessage(org.bukkit.block.Block block) {
+        String message = config.getString("messages.not-owner", "&cYou are not the owner of this {type}!");
+        return replaceTypePlaceholder(message, block);
     }
 
     public String getWrongPasswordMessage() {
@@ -130,7 +211,8 @@ public class ConfigManager {
     }
 
     public String getNoChestTargetMessage() {
-        return config.getString("messages.no-chest-target", "&cYou must be looking at a chest!");
+        // This message is generic, doesn't need container type
+        return config.getString("messages.no-chest-target", "&cYou must be looking at a container!");
     }
 
     public String getInvalidPasswordLengthMessage(int min, int max) {
