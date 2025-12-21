@@ -6,7 +6,7 @@
 
     <groupId>com.chestlocklite</groupId>
     <artifactId>ChestLockLite</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.2</version>
     <packaging>jar</packaging>
 
     <name>ChestLockLite</name>
@@ -55,6 +55,19 @@
                                     <shadedPattern>com.chestlocklite.libs.sqlite</shadedPattern>
                                 </relocation>
                             </relocations>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer"/>
+                            </transformers>
                         </configuration>
                     </execution>
                 </executions>
