@@ -1,9 +1,9 @@
 # ChestLockLite - Simple Chest Locking Plugin
 
-[![Spigot](https://img.shields.io/badge/Spigot-1.21-blue.svg)](https://www.spigotmc.org/)
+[![Spigot](https://img.shields.io/badge/Spigot-26.1.2%20%7C%2026.2-blue.svg)](https://www.spigotmc.org/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-A lightweight, simple container locking plugin for Spigot 1.21+ servers. Lock chests, barrels, hoppers, and furnaces with owner protection or password protection, with full double-chest support and SQLite storage.
+A lightweight, simple container locking plugin for Spigot/Paper 26.1.2 and 26.2 servers. Lock chests, barrels, hoppers, and furnaces with owner protection or password protection, with full double-chest support and SQLite storage.
 
 ## Features
 
@@ -34,7 +34,7 @@ A lightweight, simple container locking plugin for Spigot 1.21+ servers. Lock ch
 ## Requirements
 
 - Java 21 or higher
-- Spigot/Paper 1.21.10+
+- Spigot/Paper 26.1.2 or 26.2
 - SQLite (included in plugin)
 
 ## Installation
