@@ -1,7 +1,7 @@
 name: ChestLockLite
 version: '${project.version}'
 main: com.chestlocklite.ChestLockLitePlugin
-api-version: '1.21'
+api-version: '26.1.2'
 author: YourName
 description: Simple chest locking with owner and password protection
 website: https://github.com/yourusername/chestlocklite

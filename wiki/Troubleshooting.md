@@ -12,7 +12,7 @@ Common issues and solutions for ChestLockLite.
 
 **Solutions:**
 - Check Java version (requires Java 21+): `java -version`
-- Verify Spigot/Paper version (requires 1.21.10+)
+- Verify Spigot/Paper version (requires 26.1.2 or 26.2)
 - Check server logs for detailed error messages
 - Ensure all dependencies are present
 - Verify plugin file is not corrupted
