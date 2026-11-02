@@ -7,7 +7,7 @@ This guide will walk you through installing ChestLockLite on your Spigot/Paper s
 Before installing, ensure you have:
 
 - Java 21 or higher
-- Spigot/Paper 26.1.2 or 26.2
+- Spigot/Paper 26.1.2, 26.2, or 26.3
 - Server admin access
 
 ## Installation Steps
